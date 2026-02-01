@@ -1,0 +1,82 @@
+/* full-page layout */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+.app-bg {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f6fafc 0%, #eef6fb 50%, #f8fbff 100%);
+  display: block;
+}
+
+/* center root and allow card to scale */
+.app-root {
+  min-height: 100vh;
+  padding: 28px;
+}
+
+/* card sizing and layout */
+.app-card {
+  max-width: 980px;
+  width: 100%;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+.app-card .card-body {
+  padding: 1.25rem;
+  min-height: 72vh; /* makes the card occupy most of viewport */
+  display: flex;
+  flex-direction: column;
+}
+
+/* reviews list grows and scrolls inside the card */
+#reviews {
+  max-height: calc(72vh - 220px); /* adjust if header/form/footer sizes change */
+  overflow-y: auto;
+  padding-right: 6px; /* avoid scrollbar overlay on content */
+}
+
+/* small UI tweaks + image and effects */
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+.input-group .form-control { min-height: 48px; }
+.list-group-item { word-break: break-word; transition: transform .18s ease, box-shadow .18s ease, background-color .28s ease; }
+
+/* header image */
+.header-img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(20,20,40,0.08);
+  transform-origin: center;
+  animation: float 6s ease-in-out infinite;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+/* float animation */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(-1deg); }
+  50% { transform: translateY(-6px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(-1deg); }
+}
+
+/* fade-in animation for list items */
+.fade-in {
+  animation: fadeInUp .42s ease both;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* hover effect on review items */
+.list-group-item:hover {
+  transform: translateX(6px);
+  box-shadow: 0 6px 20px rgba(20,20,40,0.06);
+}
+
+/* brief highlight for newly added review */
+.highlight {
+  background: linear-gradient(90deg, rgba(255,243,205,0.95), rgba(255,250,240,0.6));
+  border-left: 4px solid #ffc107;
+}

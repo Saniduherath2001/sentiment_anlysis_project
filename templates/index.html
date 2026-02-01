@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>Sentiment Analysis</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            padding: 40px 60px;
+            min-height: 100vh;
+        }
+
+        /* Header Section */
+        .dashboard-header {
+            margin-bottom: 50px;
+        }
+
+        .dashboard-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.1rem;
+            color: #666666;
+            font-weight: 400;
+        }
+
+        /* Main Content Container */
+        .sentiment-container {
+            display: flex;
+            gap: 30px;
+            align-items: stretch;
+            margin-bottom: 50px;
+        }
+
+        /* Product Image Card */
+        .product-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 0;
+            width: 290px;
+            height: 290px;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Sentiment Stats */
+        .sentiment-stats {
+            display: flex;
+            gap: 30px;
+            flex: 1;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: #111111;
+            border: 1px solid #222222;
+            border-radius: 20px;
+            padding: 35px 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #333333;
+            transform: translateY(-5px);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .stat-card.positive .stat-label {
+            color: #00ff88;
+        }
+
+        .stat-card.negative .stat-label {
+            color: #ff0066;
+        }
+
+        .stat-value {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 25px;
+        }
+
+        .stat-card.positive .stat-value {
+            color: #00ff88;
+        }
+
+        .stat-card.negative .stat-value {
+            color: #ff0066;
+        }
+
+        /* Progress Bar */
+        .stat-progress {
+            width: 100%;
+            height: 8px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stat-progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card.positive .stat-progress-fill {
+            background: #00ff88;
+        }
+
+        .stat-card.negative .stat-progress-fill {
+            background: #ff0066;
+        }
+
+        /* Review Form Section */
+        .review-form-section {
+            background: #111111;
+            border: 1px solid #222222;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 30px;
+        }
+
+        .review-textarea {
+            width: 100%;
+            background: #000000;
+            border: 1px solid #222222;
+            border-radius: 15px;
+            padding: 20px 25px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            min-height: 150px;
+            resize: vertical;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+
+        .review-textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: #0a0a0a;
+        }
+
+        .review-textarea::placeholder {
+            color: #444444;
+        }
+
+        .submit-button {
+            background: #00d4ff;
+            border: none;
+            color: #000000;
+            padding: 16px 45px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: none;
+        }
+
+        .submit-button:hover {
+            background: #00bbee;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        /* Reviews List Section */
+        .reviews-section {
+            margin-top: 50px;
+        }
+
+        .reviews-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 30px;
+        }
+
+        .review-item {
+            background: #111111;
+            border: 1px solid #222222;
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .review-item:hover {
+            border-color: #333333;
+            transform: translateX(5px);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .review-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #ff0066);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #000000;
+        }
+
+        .review-author {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+
+        .review-text {
+            color: #cccccc;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            body {
+                padding: 30px 40px;
+            }
+
+            .sentiment-container {
+                flex-direction: column;
+            }
+
+            .product-card {
+                width: 100%;
+                max-width: 350px;
+                margin: 0 auto;
+            }
+
+            .sentiment-stats {
+                flex-direction: column;
+            }
+
+            .dashboard-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .dashboard-title {
+                font-size: 2rem;
+            }
+
+            .dashboard-subtitle {
+                font-size: 1rem;
+            }
+
+            .stat-value {
+                font-size: 3rem;
+            }
+
+            .section-title,
+            .reviews-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card,
+        .review-form-section,
+        .review-item {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .review-form-section { animation-delay: 0.3s; }
+        .review-item:nth-child(1) { animation-delay: 0.1s; }
+        .review-item:nth-child(2) { animation-delay: 0.2s; }
+        .review-item:nth-child(3) { animation-delay: 0.3s; }
+        .review-item:nth-child(4) { animation-delay: 0.4s; }
+        .review-item:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Sentiment Dashboard</h1>
+        <p class="dashboard-subtitle">Track customer feedback and sentiment trends</p>
+    </div>
+
+    <!-- Sentiment Container with Product Image -->
+    <div class="sentiment-container">
+        <!-- Product Image -->
+        <div class="product-card">
+            <img src="../static/products/1.jpg" alt="Product">
+        </div>
+
+        <!-- Sentiment Statistics -->
+        <div class="sentiment-stats">
+            <!-- Positive Card -->
+            <div class="stat-card positive">
+                <div class="stat-label">POSITIVE</div>
+                <div class="stat-value">{{ data.positive }}%</div>
+                <div class="stat-progress">
+                    <div class="stat-progress-fill" style="width: {{ data.positive }}%;"></div>
+                </div>
+            </div>
+
+            <!-- Negative Card -->
+            <div class="stat-card negative">
+                <div class="stat-label">NEGATIVE</div>
+                <div class="stat-value">{{ data.negative }}%</div>
+                <div class="stat-progress">
+                    <div class="stat-progress-fill" style="width: {{ data.negative }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Form -->
+    <div class="review-form-section">
+        <h2 class="section-title">Submit Your Review</h2>
+        <form method="post" id="reviewForm">
+            <textarea 
+                name="text" 
+                class="review-textarea" 
+                placeholder="Share your experience with this product..."
+                required
+            ></textarea>
+            <button type="submit" class="submit-button">Submit Review</button>
+        </form>
+    </div>
+
+    <!-- Customer Reviews -->
+    <div class="reviews-section">
+        <h2 class="reviews-title">Customer Reviews</h2>
+        {% for review in data.reviews %}
+        <div class="review-item">
+            <div class="review-header">
+                <div class="review-avatar">U</div>
+                <span class="review-author">Anonymous User</span>
+            </div>
+            <div class="review-text">{{ review }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // Animate progress bars on load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const fills = document.querySelectorAll('.stat-progress-fill');
+                fills.forEach(fill => {
+                    const width = fill.style.width;
+                    fill.style.width = '0%';
+                    setTimeout(() => {
+                        fill.style.width = width;
+                    }, 100);
+                });
+            }, 300);
+        });
+
+        // Form submission
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            const button = this.querySelector('.submit-button');
+            button.textContent = 'Submitting...';
+            button.style.opacity = '0.7';
+        });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
